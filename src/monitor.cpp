@@ -3,6 +3,7 @@
 #include <string>
 #include <functional>
 #include <ctime>
+#include <unordered_map>
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/int8.hpp"
@@ -18,8 +19,19 @@ using namespace std::chrono;
 class SafetyMonitor : public rclcpp::Node
 {
 public:
-    SafetyMonitor(): Node("safety_monitor"),last_time(system_clock::now())
+    SafetyMonitor(): Node("safety_monitor")
     {
+        // Define the last time for each subscriber
+        last_times["left_image"] = system_clock::now();
+        last_times["right_image"] = system_clock::now();
+        last_times["depth_image"] = system_clock::now();
+        last_times["left_info"] = system_clock::now();
+        last_times["right_info"] = system_clock::now();
+        last_times["depth_info"] = system_clock::now();
+        last_times["cone_array_topic"] = system_clock::now();
+        last_times["path_topic"] = system_clock::now();
+        last_times["control_topic"] = system_clock::now();
+
         // create the subscribers for the camera
         left_img_sub = this->create_subscription<sensor_msgs::msg::Image>("left_image", 10, std::bind(&SafetyMonitor::check_freq_and_log, this, _1,10,"left_image"));
         right_img_sub = this->create_subscription<sensor_msgs::msg::Image>("right_image", 10, std::bind(&SafetyMonitor::check_freq_and_log, this, _1,10,"right_image"));
@@ -61,7 +73,7 @@ private:
         auto current_time = system_clock::now();
         if (last_time.time_since_epoch().count() != 0)
         {
-            auto duration = duration_cast<milliseconds>(current_time - last_time);
+            auto duration = duration_cast<milliseconds>(current_time - last_times[topic_name]);
             std::time_t now_c = system_clock::to_time_t(current_time);
             char time_str[100];
             std::strftime(time_str, sizeof(time_str), "%H:%M:%S", std::localtime(&now_c));
@@ -95,10 +107,9 @@ private:
                     break;
                 default:
                     RCLCPP_ERROR(this->get_logger(), "[%s] Unexpected frequency value for the %s",time_str,topic_name.c_str());
-                    break;
             }
         }
-        last_time = current_time;
+        last_times[topic_name] = current_time;
     }
 
     std::chrono::time_point<std::chrono::system_clock> last_time;
@@ -125,7 +136,7 @@ int main(int argc, char *argv[])
     auto node = std::make_shared<SafetyMonitor>();
     executor.add_node(node);
 
-    //instead I could use multiple callbacks that use the same function.
+    //instead I could use multiple callbacks that use the same function maybe.
 
     rclcpp::shutdown();
     return 0;
