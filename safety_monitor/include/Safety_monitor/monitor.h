@@ -16,6 +16,7 @@
 #include "nav_msgs/msg/path.hpp"
 #include "ackermann_msgs/msg/ackermann_drive.hpp"
 
+//Topic names
 #define PARAM_TOPIC_LIMG "left_image"
 #define PARAM_TOPIC_RIMG "right_image"
 #define PARAM_TOPIC_DIMG "depth_image"
@@ -26,6 +27,17 @@
 #define PARAM_TOPIC_PLANNER "path_topic"
 #define PARAM_TOPIC_CONTROL "control_topic"
 #define PARAM_TOPIC_ACU "acu_topic"
+
+//Frequency for each topic
+#define PARAM_FREQ_LIMG "limg_freq"
+#define PARAM_FREQ_RIMG "rimg_freq"
+#define PARAM_FREQ_DIMG "dimg_freq"
+#define PARAM_FREQ_LINFO "linf_freq"
+#define PARAM_FREQ_RINFO "rinf_freq"
+#define PARAM_FREQ_DINFO "dinf_freq"
+#define PARAM_FREQ_MAPPER "mapr_freq"
+#define PARAM_FREQ_PLANNER "plan_freq"
+#define PARAM_FREQ_CONTROL "ctrl_freq"
 
 
 class SafetyMonitor : public::Node
@@ -70,6 +82,15 @@ std::string path_topic;
 std::string control_topic;
 std::string acu_topic;
 
+int limg_freq;
+int rimg_freq;
+int dimg_freq;
+int linf_freq;
+int rinf_freq;
+int dinf_freq;
+int mapr_freq;
+int plan_freq;
+int ctrl_freq;
 
 };
 

@@ -1,7 +1,6 @@
 <launch>
 
-    <!--TODO still need to add params here and the config file -->
 	<node pkg="safety_monitor" exec="monitor" name="SafetyMonitorNode">
-		<!-- <param from="$(find-pkg-share spac2_0)/config/demo_params.yaml"/> -->
+		<param from="$(find-pkg-share safety_monitor)/config/default_params.yaml"/>
 	</node>
 </launch>
