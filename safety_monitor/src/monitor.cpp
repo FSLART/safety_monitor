@@ -5,7 +5,7 @@ using namespace std::chrono;
 
 SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
 {
-    //TODO check the topic names
+    // TODO check the topic names
     // Define the params 
     this->declare_parameter(PARAM_TOPIC_LIMG,"/left");
     this->get_parameter(PARAM_TOPIC_LIMG,left_image);
@@ -25,6 +25,9 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     this->get_parameter(PARAM_TOPIC_PLANNER,path_topic);
     this->declare_parameter(PARAM_TOPIC_CONTROL,"/control");
     this->get_parameter(PARAM_TOPIC_CONTROL,control_topic);
+    this->declare_parameter(PARAM_TOPIC_STATE,"/state");
+    this->get_parameter(PARAM_TOPIC_STATE,state_topic);
+
     this->declare_parameter(PARAM_TOPIC_ACU,"/acu");
     this->get_parameter(PARAM_TOPIC_ACU,acu_topic);
 
@@ -47,6 +50,9 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     this->declare_parameter(PARAM_FREQ_CONTROL,200);
     this->get_parameter(PARAM_FREQ_CONTROL,ctrl_freq);
 
+    this->declare_parameter(PARAM_PADDING,0.7);
+    this->get_parameter(PARAM_PADDING,padding);
+
     // Define the last time for each subscriber
     last_times["left_image"] = system_clock::now();
     last_times["right_image"] = system_clock::now();
@@ -57,6 +63,9 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     last_times["cone_array_topic"] = system_clock::now();
     last_times["path_topic"] = system_clock::now();
     last_times["control_topic"] = system_clock::now();
+
+    //initialize the state
+    state_msg.data = lart_msgs::msg::State::OFF;
 
     // create the subscribers for the camera
     left_img_sub = this->create_subscription<sensor_msgs::msg::Image>(left_image, 10, std::bind(&SafetyMonitor::check_freq_and_log, this, _1, limg_freq, left_image));
@@ -75,20 +84,27 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     // create the subscriber for the control
     control_sub = this->create_subscription<ackermann_msgs::msg::AckermannDrive>(control_topic, 10, std::bind(&SafetyMonitor::check_freq_and_log, this, _1, ctrl_freq, control_topic));
 
+    // create the subscriber for the state controller
+    state_sub = this->create_subscription<lart_msgs::msg::State>(state_topic, 10, std::bind(&SafetyMonitor::))
+
     // create the publisher for the ACU
     ACU_pub = this->create_publisher<std_msgs::msg::Int8>(acu_topic, 10);
 }
 
 void SafetyMonitor::acu_publisher()
 {
-    auto message = std::make_shared<std_msgs::msg::Int8>();
-    message.data = 4;
-    RCLCPP_INFO(this->get_logger(), "Publishing to the ACU: '%d'", message->data);
+    auto message = std::make_shared<lart_msgs::msg::State>();
+    message.data = lart_msgs::msg::State::EMERGENCY;
+    
+    if(state_msg.data == lart_msgs::msg::State::DRIVING){
+        RCLCPP_INFO(this->get_logger(), "Publishing to the ACU");
 
-    for (int i = 0; i <= 1000; i++)
-    {
-        ACU_pub->publish(message);
+        for (int i = 0; i <= 1000; i++)
+        {
+            ACU_pub->publish(message);
+        }
     }
+
 }
 
 template <typename T>
@@ -102,23 +118,26 @@ void SafetyMonitor::check_freq_and_log(const typename T::SharedPtr msg, int freq
         char time_str[100];
         std::strftime(time_str, sizeof(time_str), "%H:%M:%S", std::localtime(&now_c));
 
+        //add padding to the exepected frequency
+        frequency = frequency * (padding+1);
+
         if (duration > milliseconds(frequency))
         {
-            RCLCPP_ERROR(this->get_logger(), "[%s] %s failed to send a message at the rate of 5Hz", time_str.c_str(), topic_name.c_str());
+            RCLCPP_ERROR(this->get_logger(), "[%s] %s failed to send a message", time_str.c_str(), topic_name.c_str());
             acu_publisher();
         }
     }
     last_times[topic_name] = current_time;
 }
 
+void SafetyMonitor::get_state(const lart_msgs::msg::State::SharedPtr msg){
+    state_msg.data = msg->data; 
+}
+
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
-
-    rclcpp::executors::MultiThreadedExecutor executor;
-    auto node = std::make_shared<SafetyMonitor>();
-    executor.add_node(node);
-
+    rclcpp::spin(std::make_shared<SafetyMonitor>());
     rclcpp::shutdown();
     return 0;
 }

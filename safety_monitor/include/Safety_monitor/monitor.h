@@ -13,6 +13,7 @@
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/camera_info.hpp"
 #include "lart_msgs/msg/cone_array.hpp"
+#include "lart_msgs/msg/state.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "ackermann_msgs/msg/ackermann_drive.hpp"
 
@@ -26,6 +27,7 @@
 #define PARAM_TOPIC_MAPPER "cone_array_topic"
 #define PARAM_TOPIC_PLANNER "path_topic"
 #define PARAM_TOPIC_CONTROL "control_topic"
+#define PARAM_TOPIC_STATE "state_topic"
 #define PARAM_TOPIC_ACU "acu_topic"
 
 //Frequency for each topic
@@ -39,8 +41,10 @@
 #define PARAM_FREQ_PLANNER "plan_freq"
 #define PARAM_FREQ_CONTROL "ctrl_freq"
 
+//Padding for the frequencies
+#define PARAM_PADDING "padding"
 
-class SafetyMonitor : public::Node
+class SafetyMonitor : public rclcpp::Node
 {
 
 public:
@@ -68,29 +72,34 @@ private:
 
 protected:
 
-void acu_publisher();
-void check_freq_and_log(const typename T::SharedPtr msg, int frequency, const std::string &topic_name);
+    void acu_publisher();
+    void check_freq_and_log(const typename T::SharedPtr msg, int frequency, const std::string &topic_name);
+    void get_state(const lart_msgs::msg::State::SharedPtr msg);
 
-std::string left_image;
-std::string right_image;
-std::string depth_image;
-std::string left_info;
-std::string right_info;
-std::string depth_info;
-std::string cone_array_topic;
-std::string path_topic;
-std::string control_topic;
-std::string acu_topic;
+    std::string left_image;
+    std::string right_image;
+    std::string depth_image;
+    std::string left_info;
+    std::string right_info;
+    std::string depth_info;
+    std::string cone_array_topic;
+    std::string path_topic;
+    std::string control_topic;
+    std::string state_topic;
+    std::string acu_topic;
 
-int limg_freq;
-int rimg_freq;
-int dimg_freq;
-int linf_freq;
-int rinf_freq;
-int dinf_freq;
-int mapr_freq;
-int plan_freq;
-int ctrl_freq;
+    int limg_freq;
+    int rimg_freq;
+    int dimg_freq;
+    int linf_freq;
+    int rinf_freq;
+    int dinf_freq;
+    int mapr_freq;
+    int plan_freq;
+    int ctrl_freq;
+
+    float padding;
+    lart_msgs::msg::State state_msg;
 
 };
 

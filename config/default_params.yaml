@@ -11,7 +11,8 @@
     cone_array_topic: "/cones"
     path_topic: "/path"
     control_topic: "/control"
-    acu_topic: "/acu"
+    state_topic: "/state"
+    acu_topic: "/pc_origin/mission"
 
     limg_freq: 100
 	  rimg_freq: 100
@@ -22,3 +23,5 @@
 	  mapr_freq: 200
 	  plan_freq: 200
 	  ctrl_freq: 200
+
+    padding: 0.7
