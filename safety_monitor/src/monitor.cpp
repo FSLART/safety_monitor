@@ -118,10 +118,8 @@ void SafetyMonitor::check_freq_and_log(const typename T::SharedPtr msg, int freq
         char time_str[100];
         std::strftime(time_str, sizeof(time_str), "%H:%M:%S", std::localtime(&now_c));
 
-        //add padding to the exepected frequency
-        frequency = frequency * (padding+1);
-
-        if (duration > milliseconds(frequency))
+        //add padding to the exepected frequency and compare the time intervals 
+        if (duration > milliseconds(frequency * (padding+1)))
         {
             RCLCPP_ERROR(this->get_logger(), "[%s] %s failed to send a message", time_str.c_str(), topic_name.c_str());
             acu_publisher();
