@@ -66,15 +66,17 @@ private:
     rclcpp::Subscription<lart_msgs::msg::ConeArray>::SharedPtr mapping_sub;
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr planning_sub;
     rclcpp::Subscription<ackermann_msgs::msg::AckermannDrive>::SharedPtr control_sub;
+    rclcpp::Subscription<lart_msgs::msg::State>::SharedPtr state_sub;
 
     //Pub to the ACU
-    rclcpp::Publisher<std_msgs::msg::Int8>::SharedPtr acu_publisher;
+    rclcpp::Publisher<lart_msgs::msg::State>::SharedPtr ACU_pub;
 
-protected:
 
     void acu_publisher();
-    void check_freq_and_log(const typename T::SharedPtr msg, int frequency, const std::string &topic_name);
+    template <typename T>
+    void check_freq_and_log(const typename T::SharedPtr msg, float frequency, const std::string &topic_name);
     void get_state(const lart_msgs::msg::State::SharedPtr msg);
+
 
     std::string left_image;
     std::string right_image;
@@ -88,18 +90,20 @@ protected:
     std::string state_topic;
     std::string acu_topic;
 
-    int limg_freq;
-    int rimg_freq;
-    int dimg_freq;
-    int linf_freq;
-    int rinf_freq;
-    int dinf_freq;
-    int mapr_freq;
-    int plan_freq;
-    int ctrl_freq;
+    float limg_freq;
+    float rimg_freq;
+    float dimg_freq;
+    float linf_freq;
+    float rinf_freq;
+    float dinf_freq;
+    float mapr_freq;
+    float plan_freq;
+    float ctrl_freq;
 
     float padding;
     lart_msgs::msg::State state_msg;
+
+    char time_str[100];
 
 };
 
