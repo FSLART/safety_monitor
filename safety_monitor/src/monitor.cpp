@@ -150,8 +150,6 @@ void SafetyMonitor::check_freq_and_log(const typename T::SharedPtr msg, float fr
         auto duration = duration_cast<milliseconds>(current_time - last_times[topic_name]);
         std::time_t now_c = system_clock::to_time_t(current_time);
         std::strftime(time_str, sizeof(time_str), "%H:%M:%S", std::localtime(&now_c));
-        
-        float time_expected = frequency * (padding+1);
 
         float time_expected = frequency * (padding+1);
 
