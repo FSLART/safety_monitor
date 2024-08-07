@@ -2,15 +2,15 @@
   ros__parameters:
   
   # Still needs to be changed for more accurate paths
-    left_image: "/left"
-    right_image: "/right"
-    depth_image: "/depth"
-    left_info: "/left/info"
-    right_info: "/right/info"
-    depth_info: "/depth/info"
-    cone_array_topic: "/cones"
-    path_topic: "/path"
-    control_topic: "/control"
+    left_image: "/img/left"
+    right_image: "/img/right"
+    depth_image: "/img/depth"
+    left_info: "/img/left/info"
+    right_info: "/img/right/info"
+    depth_info: "/img/depth/info"
+    cone_array_topic: "/mapping/cones"
+    path_topic: "/planning/path"
+    control_topic: "/control/command"
     state_topic: "/state"
     acu_topic: "/pc_origin/mission"
 
