@@ -153,6 +153,8 @@ void SafetyMonitor::check_freq_and_log(const typename T::SharedPtr msg, float fr
         
         float time_expected = frequency * (padding+1);
 
+        float time_expected = frequency * (padding+1);
+
         //add padding to the exepected frequency and compare the time intervals 
         if (duration > milliseconds((int)time_expected))
         {
