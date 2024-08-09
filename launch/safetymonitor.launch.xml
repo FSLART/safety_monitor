@@ -1,6 +1,6 @@
 <launch>
 
-	<node pkg="safety_monitor" exec="monitor" name="SafetyMonitorNode">
+	<node pkg="safety_monitor" exec="monitor_node" name="SafetyMonitorNode">
 		<param from="$(find-pkg-share safety_monitor)/config/default_params.yaml"/>
 	</node>
 </launch>

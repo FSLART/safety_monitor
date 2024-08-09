@@ -31,24 +31,31 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     this->declare_parameter(PARAM_TOPIC_ACU,"/acu");
     this->get_parameter(PARAM_TOPIC_ACU,acu_topic);
 
-    this->declare_parameter(PARAM_FREQ_LIMG,100);
+    this->declare_parameter(PARAM_FREQ_LIMG,100.0);
     this->get_parameter(PARAM_FREQ_LIMG,limg_freq);
-    this->declare_parameter(PARAM_FREQ_RIMG,100);
+    this->declare_parameter(PARAM_FREQ_RIMG,100.0);
     this->get_parameter(PARAM_FREQ_RIMG,rimg_freq);
-    this->declare_parameter(PARAM_FREQ_DIMG,100);
+    this->declare_parameter(PARAM_FREQ_DIMG,100.0);
     this->get_parameter(PARAM_FREQ_DIMG,dimg_freq);
-    this->declare_parameter(PARAM_FREQ_LINFO,100);
+    this->declare_parameter(PARAM_FREQ_LINFO,100.0);
     this->get_parameter(PARAM_FREQ_LINFO,linf_freq);
-    this->declare_parameter(PARAM_FREQ_RINFO,100);
+    this->declare_parameter(PARAM_FREQ_RINFO,100.0);
     this->get_parameter(PARAM_FREQ_RINFO,rinf_freq);
-    this->declare_parameter(PARAM_FREQ_DINFO,100);
+    this->declare_parameter(PARAM_FREQ_DINFO,100.0);
     this->get_parameter(PARAM_FREQ_DINFO,dinf_freq);
-    this->declare_parameter(PARAM_FREQ_MAPPER,200);
+    this->declare_parameter(PARAM_FREQ_MAPPER,200.0);
     this->get_parameter(PARAM_FREQ_MAPPER,mapr_freq);
-    this->declare_parameter(PARAM_FREQ_PLANNER,200);
+    this->declare_parameter(PARAM_FREQ_PLANNER,200.0);
     this->get_parameter(PARAM_FREQ_PLANNER,plan_freq);
-    this->declare_parameter(PARAM_FREQ_CONTROL,200);
+    this->declare_parameter(PARAM_FREQ_CONTROL,200.0);
     this->get_parameter(PARAM_FREQ_CONTROL,ctrl_freq);
+
+    //add padding to the frequencys
+    for (auto &&freq : freqs)
+    {
+        freq = freq * padding;
+    }
+    
 
     this->declare_parameter(PARAM_PADDING,0.7);
     this->get_parameter(PARAM_PADDING,padding);
@@ -151,10 +158,8 @@ void SafetyMonitor::check_freq_and_log(const typename T::SharedPtr msg, float fr
         std::time_t now_c = system_clock::to_time_t(current_time);
         std::strftime(time_str, sizeof(time_str), "%H:%M:%S", std::localtime(&now_c));
 
-        float time_expected = frequency * (padding+1);
-
-        //add padding to the exepected frequency and compare the time intervals 
-        if (duration > milliseconds((int)time_expected))
+        //compare the time intervals 
+        if (duration > milliseconds((int)frequency))
         {
             RCLCPP_ERROR(this->get_logger(), "[%s] %s failed to send a message", time_str, topic_name.c_str());
             acu_publisher();

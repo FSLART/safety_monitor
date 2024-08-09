@@ -90,6 +90,7 @@ private:
     std::string state_topic;
     std::string acu_topic;
 
+    float freqs[9];
     float limg_freq;
     float rimg_freq;
     float dimg_freq;

@@ -1,7 +1,6 @@
 /SafetyMonitorNode:
   ros__parameters:
-  
-  # Still needs to be changed for more accurate paths
+
     left_image: "/img/left"
     right_image: "/img/right"
     depth_image: "/img/depth"
@@ -14,14 +13,15 @@
     state_topic: "/state"
     acu_topic: "/pc_origin/mission"
 
-    limg_freq: 100
-	  rimg_freq: 100
-	  dimg_freq: 100
-	  linf_freq: 100
-	  rinf_freq: 100
-    dinf_freq: 100
-	  mapr_freq: 200
-	  plan_freq: 200
-	  ctrl_freq: 200
+    freqs:
+      limg_freq: 100.0
+      rimg_freq: 100.0
+      dimg_freq: 100.0
+      linf_freq: 100.0
+      rinf_freq: 100.0
+      dinf_freq: 100.0
+      mapr_freq: 200.0
+      plan_freq: 200.0
+      ctrl_freq: 200.0
 
-    padding: 0.7
+    padding: 1.7
