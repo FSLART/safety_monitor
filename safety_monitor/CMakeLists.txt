@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(safety_monitor)
 
 set(library_name safety_monitor)
-set(lib_srcs src/monitor.cpp)
+set(lib_srcs src/monitor.cpp src/timeFreq.cpp)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -24,7 +24,7 @@ add_library(${library_name} ${lib_srcs})
 ament_target_dependencies(${library_name} rclcpp std_msgs sensor_msgs lart_msgs nav_msgs ackermann_msgs)
 
 
-add_executable(monitor_node src/monitor.cpp)
+add_executable(monitor_node src/monitor.cpp src/timeFreq.cpp)
 
 ament_target_dependencies(
   monitor_node

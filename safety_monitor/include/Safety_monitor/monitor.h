@@ -8,14 +8,15 @@
 #include <ctime>
 #include <unordered_map>
 
+#include "timeFreq.h"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/int8.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/camera_info.hpp"
 #include "lart_msgs/msg/cone_array.hpp"
 #include "lart_msgs/msg/state.hpp"
+#include "lart_msgs/msg/dynamics_cmd.hpp"
 #include "nav_msgs/msg/path.hpp"
-#include "ackermann_msgs/msg/ackermann_drive.hpp"
 
 //Topic names
 #define PARAM_TOPIC_LIMG "left_image"
@@ -52,7 +53,7 @@ public:
 
 private:
     //unordered map
-    std::unordered_map<std::string, std::chrono::time_point<std::chrono::system_clock>> last_times;
+    std::unordered_map<std::string, TimeFreq> last_times;
 
     //Subs for camera
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr left_img_sub;
@@ -65,7 +66,7 @@ private:
     //Subs for the mapper|planner|control
     rclcpp::Subscription<lart_msgs::msg::ConeArray>::SharedPtr mapping_sub;
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr planning_sub;
-    rclcpp::Subscription<ackermann_msgs::msg::AckermannDrive>::SharedPtr control_sub;
+    rclcpp::Subscription<lart_msgs::msg::DynamicsCMD>::SharedPtr control_sub;
     rclcpp::Subscription<lart_msgs::msg::State>::SharedPtr state_sub;
 
     //Pub to the ACU
@@ -74,7 +75,8 @@ private:
 
     void acu_publisher();
     template <typename T>
-    void check_freq_and_log(const typename T::SharedPtr msg, float frequency, const std::string &topic_name);
+    void update_time(const typename T::SharedPtr msg, const std::string &topic_name);
+    void monitor_times();
     void get_state(const lart_msgs::msg::State::SharedPtr msg);
 
 
@@ -103,6 +105,7 @@ private:
 
     float padding;
     lart_msgs::msg::State state_msg;
+    rclcpp::TimerBase::SharedPtr timer;
 
     char time_str[100];
 
