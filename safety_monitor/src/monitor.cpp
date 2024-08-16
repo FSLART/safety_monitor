@@ -5,71 +5,27 @@ using namespace std::chrono;
 
 SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
 {
-    // TODO check the topic names
-    // Define the params 
-    this->declare_parameter(PARAM_TOPIC_LIMG,"/left");
-    this->get_parameter(PARAM_TOPIC_LIMG,left_image);
-    this->declare_parameter(PARAM_TOPIC_RIMG,"/right");
-    this->get_parameter(PARAM_TOPIC_RIMG,right_image);
-    this->declare_parameter(PARAM_TOPIC_DIMG,"/depth");
-    this->get_parameter(PARAM_TOPIC_DIMG,depth_image);
-    this->declare_parameter(PARAM_TOPIC_LINFO,"/left/info");
-    this->get_parameter(PARAM_TOPIC_LINFO,left_info);
-    this->declare_parameter(PARAM_TOPIC_RINFO,"/right/info");
-    this->get_parameter(PARAM_TOPIC_RINFO,right_info);
-    this->declare_parameter(PARAM_TOPIC_DINFO,"/depth/info");
-    this->get_parameter(PARAM_TOPIC_DINFO,depth_info);
-    this->declare_parameter(PARAM_TOPIC_MAPPER,"/cones");
-    this->get_parameter(PARAM_TOPIC_MAPPER,cone_array_topic);
-    this->declare_parameter(PARAM_TOPIC_PLANNER,"/path");
-    this->get_parameter(PARAM_TOPIC_PLANNER,path_topic);
-    this->declare_parameter(PARAM_TOPIC_CONTROL,"/control");
-    this->get_parameter(PARAM_TOPIC_CONTROL,control_topic);
+    
     this->declare_parameter(PARAM_TOPIC_STATE,"/state");
     this->get_parameter(PARAM_TOPIC_STATE,state_topic);
     this->declare_parameter(PARAM_TOPIC_ACU,"/acu");
     this->get_parameter(PARAM_TOPIC_ACU,acu_topic);
 
-
-    this->declare_parameter(PARAM_FREQ_LIMG,100.0);
-    this->get_parameter(PARAM_FREQ_LIMG,limg_freq);
-    this->declare_parameter(PARAM_FREQ_RIMG,100.0);
-    this->get_parameter(PARAM_FREQ_RIMG,rimg_freq);
-    this->declare_parameter(PARAM_FREQ_DIMG,100.0);
-    this->get_parameter(PARAM_FREQ_DIMG,dimg_freq);
-    this->declare_parameter(PARAM_FREQ_LINFO,100.0);
-    this->get_parameter(PARAM_FREQ_LINFO,linf_freq);
-    this->declare_parameter(PARAM_FREQ_RINFO,100.0);
-    this->get_parameter(PARAM_FREQ_RINFO,rinf_freq);
-    this->declare_parameter(PARAM_FREQ_DINFO,100.0);
-    this->get_parameter(PARAM_FREQ_DINFO,dinf_freq);
-    this->declare_parameter(PARAM_FREQ_MAPPER,200.0);
-    this->get_parameter(PARAM_FREQ_MAPPER,mapr_freq);
-    this->declare_parameter(PARAM_FREQ_PLANNER,200.0);
-    this->get_parameter(PARAM_FREQ_PLANNER,plan_freq);
-    this->declare_parameter(PARAM_FREQ_CONTROL,200.0);
-    this->get_parameter(PARAM_FREQ_CONTROL,ctrl_freq);
-
-
-    this->declare_parameter(PARAM_PADDING,0.7);
+    this->declare_parameter(PARAM_PADDING,1.0);
     this->get_parameter(PARAM_PADDING,padding);
 
-    //add padding to the frequencys
-    for (auto &&freq : freqs)
-    {
-        freq = freq * padding;
-    }
+    std::vector<std::string> topics = this->declare_parameter<std::vector<std::string>>("topics", std::vector<std::string>{});
 
-    // Define the last time for each subscriber and his frequency
-    last_times[left_image] = TimeFreq(limg_freq,system_clock::now());
-    last_times[right_image] = TimeFreq(rimg_freq,system_clock::now());
-    last_times[depth_image] = TimeFreq(dimg_freq,system_clock::now());
-    last_times[left_info] = TimeFreq(linf_freq,system_clock::now());
-    last_times[right_info] = TimeFreq(rinf_freq,system_clock::now());
-    last_times[depth_info] = TimeFreq(dinf_freq,system_clock::now());
-    last_times[cone_array_topic] = TimeFreq(mapr_freq,system_clock::now());
-    last_times[path_topic] = TimeFreq(plan_freq,system_clock::now());
-    last_times[control_topic] = TimeFreq(ctrl_freq,system_clock::now());
+    std::vector<double> freqs = this->declare_parameter<std::vector<double>>("freqs", std::vector<double>{});
+
+    int i=0;
+    for (auto &&topic : topics)
+    {
+        freqs[i] = freqs[i] * padding;
+
+        last_times[topic] = TimeFreq(freqs[i],system_clock::now());
+        i++;
+    }
 
 
     //initialize the state
@@ -77,52 +33,52 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
 
     // create the subscribers for the camera
     left_img_sub = this->create_subscription<sensor_msgs::msg::Image>(
-        left_image, 10, [this](const sensor_msgs::msg::Image::SharedPtr msg) {
-            update_time<sensor_msgs::msg::Image>(msg, left_image);
+        topics[0], 10, [this,&topics](const sensor_msgs::msg::Image::SharedPtr msg) {
+            update_time<sensor_msgs::msg::Image>(msg, topics[0]);
         });
 
     right_img_sub = this->create_subscription<sensor_msgs::msg::Image>(
-        right_image, 10, [this](const sensor_msgs::msg::Image::SharedPtr msg) {
-            update_time<sensor_msgs::msg::Image>(msg, right_image);
+        topics[1], 10, [this,&topics](const sensor_msgs::msg::Image::SharedPtr msg) {
+            update_time<sensor_msgs::msg::Image>(msg, topics[1]);
         });
 
     depth_img_sub = this->create_subscription<sensor_msgs::msg::Image>(
-        depth_image, 10, [this](const sensor_msgs::msg::Image::SharedPtr msg) {
-            update_time<sensor_msgs::msg::Image>(msg, depth_image);
+        topics[2], 10, [this,&topics](const sensor_msgs::msg::Image::SharedPtr msg) {
+            update_time<sensor_msgs::msg::Image>(msg, topics[2]);
         });
 
     left_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-        left_info, 10, [this](const sensor_msgs::msg::CameraInfo::SharedPtr msg) {
-            update_time<sensor_msgs::msg::CameraInfo>(msg, left_info);
+        topics[3], 10, [this,&topics](const sensor_msgs::msg::CameraInfo::SharedPtr msg) {
+            update_time<sensor_msgs::msg::CameraInfo>(msg, topics[3]);
         });
 
     right_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-        right_info, 10, [this](const sensor_msgs::msg::CameraInfo::SharedPtr msg) {
-            update_time<sensor_msgs::msg::CameraInfo>(msg, right_info);
+        topics[4], 10, [this,&topics](const sensor_msgs::msg::CameraInfo::SharedPtr msg) {
+            update_time<sensor_msgs::msg::CameraInfo>(msg, topics[4]);
         });
 
      depth_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-        depth_info, 10, [this](const sensor_msgs::msg::CameraInfo::SharedPtr msg) {
-            update_time<sensor_msgs::msg::CameraInfo>(msg, depth_info);
+        topics[5], 10, [this,&topics](const sensor_msgs::msg::CameraInfo::SharedPtr msg) {
+            update_time<sensor_msgs::msg::CameraInfo>(msg, topics[5]);
         });
 
     // create the subscriber for the mapper
     mapping_sub = this->create_subscription<lart_msgs::msg::ConeArray>(
-        cone_array_topic, 10, [this](const lart_msgs::msg::ConeArray::SharedPtr msg) {
-            update_time<lart_msgs::msg::ConeArray>(msg, cone_array_topic);
+        topics[6], 10, [this,&topics](const lart_msgs::msg::ConeArray::SharedPtr msg) {
+            update_time<lart_msgs::msg::ConeArray>(msg, topics[6]);
         });
 
 
     // create the subscriber for the planner
     planning_sub = this->create_subscription<nav_msgs::msg::Path>(
-        path_topic, 10, [this](const nav_msgs::msg::Path::SharedPtr msg) {
-            update_time<nav_msgs::msg::Path>(msg, path_topic);
+        topics[7], 10, [this,&topics](const nav_msgs::msg::Path::SharedPtr msg) {
+            update_time<nav_msgs::msg::Path>(msg, topics[7]);
         });
 
     // create the subscriber for the control
     control_sub = this->create_subscription<lart_msgs::msg::DynamicsCMD>(
-        control_topic, 10, [this](const lart_msgs::msg::DynamicsCMD::SharedPtr msg) {
-            update_time<lart_msgs::msg::DynamicsCMD>(msg, control_topic);
+        topics[8], 10, [this,&topics](const lart_msgs::msg::DynamicsCMD::SharedPtr msg) {
+            update_time<lart_msgs::msg::DynamicsCMD>(msg, topics[8]);
         });
 
     // create the subscriber for the state controller
@@ -167,12 +123,12 @@ void SafetyMonitor::monitor_times(){
     for (auto &&pair : last_times)
     {
         auto current_time = system_clock::now();
-        auto duration = duration_cast<milliseconds>(current_time - last_times[pair.first].getTime());
+        auto duration = duration_cast<milliseconds>(current_time - pair.second.getTime());
 
         std::time_t now_c = system_clock::to_time_t(current_time);
         std::strftime(time_str, sizeof(time_str), "%H:%M:%S", std::localtime(&now_c));
 
-        if (duration > milliseconds((int)last_times[pair.first].getFrequency()))
+        if (duration > std::chrono::milliseconds((int)(pair.second.getFrequency())))
         {
             RCLCPP_ERROR(this->get_logger(), "[%s] %s failed to send a message in time", time_str, pair.first.c_str());
             acu_publisher();
@@ -182,6 +138,7 @@ void SafetyMonitor::monitor_times(){
     
 }
 
+// receive and update the state
 void SafetyMonitor::get_state(const lart_msgs::msg::State::SharedPtr msg){
     state_msg.data = msg->data; 
 }

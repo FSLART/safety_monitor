@@ -2,10 +2,11 @@
 #define TIMEFREQ_H_
 
 #include <chrono>
-#include <string>
+#include <iostream>
 
 class TimeFreq{
     public:
+        TimeFreq();
         TimeFreq(float frequency, std::chrono::time_point<std::chrono::system_clock> time);
 
         void setTime(std::chrono::time_point<std::chrono::system_clock> time);

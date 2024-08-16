@@ -1,27 +1,11 @@
 /SafetyMonitorNode:
   ros__parameters:
 
-    left_image: "/img/left"
-    right_image: "/img/right"
-    depth_image: "/img/depth"
-    left_info: "/img/left/info"
-    right_info: "/img/right/info"
-    depth_info: "/img/depth/info"
-    cone_array_topic: "/mapping/cones"
-    path_topic: "/planning/path"
-    control_topic: "/control/command"
+    topics: ["/img/left","/img/right","/img/depth","/img/left/info","/img/right/info","/img/depth/info","/mapping/cones","/planning/path","/control/command"]
+    
     state_topic: "/state"
     acu_topic: "/pc_origin/mission"
 
-    freqs:
-      limg_freq: 100.0
-      rimg_freq: 100.0
-      dimg_freq: 100.0
-      linf_freq: 100.0
-      rinf_freq: 100.0
-      dinf_freq: 100.0
-      mapr_freq: 200.0
-      plan_freq: 200.0
-      ctrl_freq: 200.0
+    freqs: [100.0,100.0,100.0,100.0,100.0,100.0,200.0,200.0,200.0]
 
     padding: 1.7
