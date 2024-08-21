@@ -2,10 +2,10 @@
   ros__parameters:
 
     topics: ["/img/left","/img/right","/img/depth","/img/left/info","/img/right/info","/img/depth/info","/mapping/cones","/planning/path","/control/command"]
-    
-    state_topic: "/state"
-    acu_topic: "/pc_origin/mission"
 
     freqs: [100.0,100.0,100.0,100.0,100.0,100.0,200.0,200.0,200.0]
+
+    state_topic: "/state"
+    acu_topic: "/pc_origin/mission"
 
     padding: 1.7
