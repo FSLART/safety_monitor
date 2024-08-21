@@ -94,13 +94,27 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
 
 
 //publishes to the ACU only if the car is in Driving
-void SafetyMonitor::acu_publisher()
+void SafetyMonitor::acu_publisher(const std::string &topic_name, const std::string &time)
 {
     auto message = lart_msgs::msg::State();
     message.data = lart_msgs::msg::State::EMERGENCY;
     
     if(state_msg.data == lart_msgs::msg::State::DRIVING){
         RCLCPP_INFO(this->get_logger(), "Publishing to the ACU");
+
+        try {
+            std::ofstream outFile("SafetyMonitorLog.txt", std::ios::app);
+
+            if (!outFile) {
+                throw std::ios_base::failure("Failed to open the log file.");
+            }
+
+            outFile << "[" << time << "] " << topic_name << " failed to send a message in time" << std::endl;
+            outFile.close();
+
+        } catch (const std::ios_base::failure &e) {
+            RCLCPP_ERROR(this->get_logger(), "File operation failed: %s", e.what());
+        }
 
         for (int i = 0; i <= 1000; i++)
         {
@@ -130,8 +144,8 @@ void SafetyMonitor::monitor_times(){
 
         if (duration > std::chrono::milliseconds((int)(pair.second.getFrequency())))
         {
-            RCLCPP_ERROR(this->get_logger(), "[%s] %s failed to send a message in time", time_str, pair.first.c_str());
-            acu_publisher();
+            RCLCPP_WARN(this->get_logger(), "[%s] %s failed to send a message in time", time_str, pair.first.c_str());
+            acu_publisher(pair.first.c_str(),time_str);
         }
 
     }

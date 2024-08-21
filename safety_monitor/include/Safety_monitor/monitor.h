@@ -1,22 +1,23 @@
 #ifndef MONITOR_H_
 #define MONITOR_H_
 
-#include <memory>
-#include <chrono>
-#include <string>
-#include <functional>
+
 #include <ctime>
+#include <memory>
+#include <string>
+#include <fstream>
+#include <functional>
 #include <unordered_map>
 
 #include "timeFreq.h"
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/int8.hpp"
-#include "sensor_msgs/msg/image.hpp"
-#include "sensor_msgs/msg/camera_info.hpp"
-#include "lart_msgs/msg/cone_array.hpp"
-#include "lart_msgs/msg/state.hpp"
-#include "lart_msgs/msg/dynamics_cmd.hpp"
 #include "nav_msgs/msg/path.hpp"
+#include "lart_msgs/msg/state.hpp"
+#include "sensor_msgs/msg/image.hpp"
+#include "lart_msgs/msg/cone_array.hpp"
+#include "lart_msgs/msg/dynamics_cmd.hpp"
+#include "sensor_msgs/msg/camera_info.hpp"
+
 
 //Topic names for the state_controller and ACU
 #define PARAM_TOPIC_STATE "state_topic"
@@ -53,7 +54,7 @@ private:
     rclcpp::Publisher<lart_msgs::msg::State>::SharedPtr ACU_pub;
 
 
-    void acu_publisher();
+    void acu_publisher(const std::string &topic_name, const std::string &time);
     template <typename T>
     void update_time(const typename T::SharedPtr msg, const std::string &topic_name);
     void monitor_times();
