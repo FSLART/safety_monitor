@@ -15,13 +15,12 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(lart_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
-find_package(ackermann_msgs REQUIRED)
 
 include_directories(include)
 
 add_library(${library_name} ${lib_srcs})
 
-ament_target_dependencies(${library_name} rclcpp std_msgs sensor_msgs lart_msgs nav_msgs ackermann_msgs)
+ament_target_dependencies(${library_name} rclcpp std_msgs sensor_msgs lart_msgs nav_msgs)
 
 
 add_executable(monitor_node src/monitor.cpp src/timeFreq.cpp)
@@ -33,7 +32,6 @@ ament_target_dependencies(
   "sensor_msgs"
   "lart_msgs"
   "nav_msgs"
-  "ackermann_msgs"
 )
 
 target_link_libraries(monitor_node ${library_name})
