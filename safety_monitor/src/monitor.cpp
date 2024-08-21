@@ -93,7 +93,7 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
 }
 
 
-//publishes to the ACU only if the car is in Driving
+//publishes to the ACU and logs only if the car is in Driving
 void SafetyMonitor::acu_publisher(const std::string &topic_name, const std::string &time)
 {
     auto message = lart_msgs::msg::State();
