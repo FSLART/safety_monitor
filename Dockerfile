@@ -30,5 +30,6 @@ RUN /bin/bash -c "source /opt/ros/humble/setup.bash && \
     cd /ws && \
     colcon build --parallel-workers 6 --symlink-install"
 
+    #dwdw
 # launch the package
 CMD ["/bin/bash", "-c", "source /opt/ros/humble/setup.bash && source install/setup.bash && ros2 launch safety_monitor safetymonitor.launch.xml"]
