@@ -14,7 +14,7 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     this->declare_parameter(PARAM_PADDING,1.0);
     this->get_parameter(PARAM_PADDING,padding);
 
-    std::vector<std::string> topics = this->declare_parameter<std::vector<std::string>>("topics", std::vector<std::string>{});
+    this->topics = this->declare_parameter<std::vector<std::string>>("topics", std::vector<std::string>{});
 
     std::vector<double> freqs = this->declare_parameter<std::vector<double>>("freqs", std::vector<double>{});
 
@@ -32,54 +32,18 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     state_msg.data = lart_msgs::msg::State::OFF;
 
     // create the subscribers for the camera
-    left_img_sub = this->create_subscription<sensor_msgs::msg::Image>(
-        topics[0], 10, [this,&topics](const sensor_msgs::msg::Image::SharedPtr msg) {
-            update_time<sensor_msgs::msg::Image>(msg, topics[0]);
-        });
+    left_img_sub = this->create_subscription<sensor_msgs::msg::Image>(topics[0], 10, std::bind(&SafetyMonitor::leftImage_callback,this, _1));
+    right_img_sub = this->create_subscription<sensor_msgs::msg::Image>(topics[1], 10, std::bind(&SafetyMonitor::rightImage_callback,this, _1));
+    depth_img_sub = this->create_subscription<sensor_msgs::msg::Image>(topics[2], 10, std::bind(&SafetyMonitor::depthImage_callback,this, _1));
 
-    right_img_sub = this->create_subscription<sensor_msgs::msg::Image>(
-        topics[1], 10, [this,&topics](const sensor_msgs::msg::Image::SharedPtr msg) {
-            update_time<sensor_msgs::msg::Image>(msg, topics[1]);
-        });
+    left_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>(topics[3], 10, std::bind(&SafetyMonitor::leftInfo_callback,this, _1));
+    right_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>(topics[4], 10, std::bind(&SafetyMonitor::rightInfo_callback,this, _1));
+    depth_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>(topics[5], 10, std::bind(&SafetyMonitor::depthInfo_callback,this, _1));
 
-    depth_img_sub = this->create_subscription<sensor_msgs::msg::Image>(
-        topics[2], 10, [this,&topics](const sensor_msgs::msg::Image::SharedPtr msg) {
-            update_time<sensor_msgs::msg::Image>(msg, topics[2]);
-        });
+    mapping_sub = this->create_subscription<lart_msgs::msg::ConeArray>(topics[6], 10, std::bind(&SafetyMonitor::mapping_callback,this, _1));
+    planning_sub = this->create_subscription<nav_msgs::msg::Path>(topics[7], 10, std::bind(&SafetyMonitor::planning_callback,this, _1));
+    control_sub = this->create_subscription<lart_msgs::msg::DynamicsCMD>(topics[8], 10, std::bind(&SafetyMonitor::control_callback,this, _1));
 
-    left_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-        topics[3], 10, [this,&topics](const sensor_msgs::msg::CameraInfo::SharedPtr msg) {
-            update_time<sensor_msgs::msg::CameraInfo>(msg, topics[3]);
-        });
-
-    right_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-        topics[4], 10, [this,&topics](const sensor_msgs::msg::CameraInfo::SharedPtr msg) {
-            update_time<sensor_msgs::msg::CameraInfo>(msg, topics[4]);
-        });
-
-     depth_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-        topics[5], 10, [this,&topics](const sensor_msgs::msg::CameraInfo::SharedPtr msg) {
-            update_time<sensor_msgs::msg::CameraInfo>(msg, topics[5]);
-        });
-
-    // create the subscriber for the mapper
-    mapping_sub = this->create_subscription<lart_msgs::msg::ConeArray>(
-        topics[6], 10, [this,&topics](const lart_msgs::msg::ConeArray::SharedPtr msg) {
-            update_time<lart_msgs::msg::ConeArray>(msg, topics[6]);
-        });
-
-
-    // create the subscriber for the planner
-    planning_sub = this->create_subscription<nav_msgs::msg::Path>(
-        topics[7], 10, [this,&topics](const nav_msgs::msg::Path::SharedPtr msg) {
-            update_time<nav_msgs::msg::Path>(msg, topics[7]);
-        });
-
-    // create the subscriber for the control
-    control_sub = this->create_subscription<lart_msgs::msg::DynamicsCMD>(
-        topics[8], 10, [this,&topics](const lart_msgs::msg::DynamicsCMD::SharedPtr msg) {
-            update_time<lart_msgs::msg::DynamicsCMD>(msg, topics[8]);
-        });
 
     // create the subscriber for the state controller
     state_sub = this->create_subscription<lart_msgs::msg::State>(state_topic, 10, std::bind(&SafetyMonitor::get_state,this, _1));
@@ -91,6 +55,72 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     timer = this->create_wall_timer(100ms, std::bind(&SafetyMonitor::monitor_times, this));
 
 }
+
+
+// TODO: Optimize later!!!
+void SafetyMonitor::leftImage_callback(const sensor_msgs::msg::Image::SharedPtr msg)
+{
+    (void) msg;
+    RCLCPP_INFO(this->get_logger(), "Left image msg has been received");
+    update_time(topics[0]);
+}
+
+void SafetyMonitor::rightImage_callback(const sensor_msgs::msg::Image::SharedPtr msg)
+{
+    (void) msg;
+    RCLCPP_INFO(this->get_logger(), "Right image msg has been received");
+    update_time(topics[1]);
+}
+
+void SafetyMonitor::depthImage_callback(const sensor_msgs::msg::Image::SharedPtr msg)
+{
+    (void) msg;
+    RCLCPP_INFO(this->get_logger(), "Depth image msg has been received");
+    update_time(topics[2]);
+}
+
+void SafetyMonitor::leftInfo_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
+{
+    (void) msg;
+    RCLCPP_INFO(this->get_logger(), "Left info msg has been received");
+    update_time(topics[3]);
+}
+
+void SafetyMonitor::rightInfo_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
+{
+    (void) msg;
+    RCLCPP_INFO(this->get_logger(), "Right info msg has been received");
+    update_time(topics[4]);
+}
+
+void SafetyMonitor::depthInfo_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
+{
+    (void) msg;
+    RCLCPP_INFO(this->get_logger(), "Depth info msg has been received");
+    update_time(topics[5]);
+}
+
+void SafetyMonitor::mapping_callback(const lart_msgs::msg::ConeArray::SharedPtr msg)
+{
+    (void) msg;
+    RCLCPP_INFO(this->get_logger(), "Mapper msg has been received");
+    update_time(topics[6]);
+}
+
+void SafetyMonitor::planning_callback(const nav_msgs::msg::Path::SharedPtr msg)
+{
+    (void) msg;
+    RCLCPP_INFO(this->get_logger(), "Planner msg has been received");
+    update_time(topics[7]);
+}
+
+void SafetyMonitor::control_callback(const lart_msgs::msg::DynamicsCMD::SharedPtr msg)
+{
+    (void) msg;
+    RCLCPP_INFO(this->get_logger(), "Control msg has been received");
+    update_time(topics[8]);
+}
+
 
 
 //publishes to the ACU and logs only if the car is in Driving
@@ -125,12 +155,11 @@ void SafetyMonitor::acu_publisher(const std::string &topic_name, const std::stri
 }
 
 // updates the time point of the last message received by a topic
-template <typename T>
-void SafetyMonitor::update_time(const typename T::SharedPtr msg, const std::string &topic_name){
-    (void) msg;
+void SafetyMonitor::update_time(const std::string &topic_name){
     auto current_time = system_clock::now();
     last_times[topic_name].setTime(current_time);
 }
+
 
 // periodically checks if every topic is sending msgs in time
 void SafetyMonitor::monitor_times(){

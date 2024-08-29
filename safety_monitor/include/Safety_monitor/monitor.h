@@ -48,20 +48,37 @@ private:
     rclcpp::Subscription<lart_msgs::msg::ConeArray>::SharedPtr mapping_sub;
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr planning_sub;
     rclcpp::Subscription<lart_msgs::msg::DynamicsCMD>::SharedPtr control_sub;
+
+    //Sub for the state
     rclcpp::Subscription<lart_msgs::msg::State>::SharedPtr state_sub;
 
     //Pub to the ACU
     rclcpp::Publisher<lart_msgs::msg::State>::SharedPtr ACU_pub;
 
-
     void acu_publisher(const std::string &topic_name, const std::string &time);
-    template <typename T>
-    void update_time(const typename T::SharedPtr msg, const std::string &topic_name);
+
+    void update_time(const std::string &topic_name);
+
     void monitor_times();
+
     void get_state(const lart_msgs::msg::State::SharedPtr msg);
+
+    void leftImage_callback(const sensor_msgs::msg::Image::SharedPtr msg);
+    void rightImage_callback(const sensor_msgs::msg::Image::SharedPtr msg);
+    void depthImage_callback(const sensor_msgs::msg::Image::SharedPtr msg);
+
+    void leftInfo_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg);
+    void rightInfo_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg);
+    void depthInfo_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg);
+
+    void mapping_callback(const lart_msgs::msg::ConeArray::SharedPtr msg);
+    void planning_callback(const nav_msgs::msg::Path::SharedPtr msg);
+    void control_callback(const lart_msgs::msg::DynamicsCMD::SharedPtr msg);
+
 
     std::string state_topic;
     std::string acu_topic;
+    std::vector<std::string> topics;
 
     float padding;
     lart_msgs::msg::State state_msg;
