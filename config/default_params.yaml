@@ -1,7 +1,7 @@
 /SafetyMonitorNode:
   ros__parameters:
 
-    topics: ["/img/left","/img/right","/img/depth","/img/left/info","/img/right/info","/img/depth/info","/mapping/cones","/planning/path","/control/command"]
+    topics: ["/zed/left/image_raw","/zed/image_raw","/zed/depth/image_raw","/zed/left/camera_info","/zed/right/camera_info","/zed/depth/camera_info","/mapping/cones","/planning/path","/control/command"]
 
     freqs: [100.0,100.0,100.0,100.0,100.0,100.0,200.0,200.0,200.0]
 
