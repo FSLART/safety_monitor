@@ -41,7 +41,7 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     depth_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>(topics[5], 10, std::bind(&SafetyMonitor::depthInfo_callback,this, _1));
 
     mapping_sub = this->create_subscription<lart_msgs::msg::ConeArray>(topics[6], 10, std::bind(&SafetyMonitor::mapping_callback,this, _1));
-    planning_sub = this->create_subscription<nav_msgs::msg::Path>(topics[7], 10, std::bind(&SafetyMonitor::planning_callback,this, _1));
+    planning_sub = this->create_subscription<lart_msgs::msg::PathSpline>(topics[7], 10, std::bind(&SafetyMonitor::planning_callback,this, _1));
     control_sub = this->create_subscription<lart_msgs::msg::DynamicsCMD>(topics[8], 10, std::bind(&SafetyMonitor::control_callback,this, _1));
 
 
@@ -56,8 +56,6 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
 
 }
 
-
-// TODO: Optimize later!!!
 void SafetyMonitor::leftImage_callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
     (void) msg;
@@ -107,7 +105,7 @@ void SafetyMonitor::mapping_callback(const lart_msgs::msg::ConeArray::SharedPtr 
     update_time(topics[6]);
 }
 
-void SafetyMonitor::planning_callback(const nav_msgs::msg::Path::SharedPtr msg)
+void SafetyMonitor::planning_callback(const lart_msgs::msg::PathSpline::SharedPtr msg)
 {
     (void) msg;
     RCLCPP_INFO(this->get_logger(), "Planner msg has been received");

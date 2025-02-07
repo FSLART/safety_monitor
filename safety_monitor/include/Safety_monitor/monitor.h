@@ -11,7 +11,7 @@
 
 #include "timeFreq.h"
 #include "rclcpp/rclcpp.hpp"
-#include "nav_msgs/msg/path.hpp"
+#include "lart_msgs/msg/path_spline.hpp"
 #include "lart_msgs/msg/state.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "lart_msgs/msg/cone_array.hpp"
@@ -46,7 +46,7 @@ private:
 
     //Subs for the mapper|planner|control
     rclcpp::Subscription<lart_msgs::msg::ConeArray>::SharedPtr mapping_sub;
-    rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr planning_sub;
+    rclcpp::Subscription<lart_msgs::msg::PathSpline>::SharedPtr planning_sub;
     rclcpp::Subscription<lart_msgs::msg::DynamicsCMD>::SharedPtr control_sub;
 
     //Sub for the state
@@ -72,7 +72,7 @@ private:
     void depthInfo_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg);
 
     void mapping_callback(const lart_msgs::msg::ConeArray::SharedPtr msg);
-    void planning_callback(const nav_msgs::msg::Path::SharedPtr msg);
+    void planning_callback(const lart_msgs::msg::PathSpline::SharedPtr msg);
     void control_callback(const lart_msgs::msg::DynamicsCMD::SharedPtr msg);
 
 
