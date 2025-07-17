@@ -1,11 +1,11 @@
 /SafetyMonitorNode:
   ros__parameters:
 
-    topics: ["/zed/left/image_raw","/zed/image_raw","/zed/depth/image_raw","/zed/left/camera_info","/zed/right/camera_info","/zed/depth/camera_info","/mapping/cones","/planning/path","/control/command"]
+  topics: ["/mapping/cones","/ekf/state","/ekf/map","/planned_path_topic","/pc_origin/dynamics", "/acu_origin/dynamics"]
 
-    freqs: [100.0,100.0,100.0,100.0,100.0,100.0,200.0,200.0,200.0]
+    freqs: [100.0,100.0,100.0,100.0,100.0,100.0]
 
-    state_topic: "/state"
-    acu_topic: "/pc_origin/mission"
+    state_topic: "/pc_origin/system_status/critical_as/state"
+    mission_topic: "/pc_origin/system_status/critical_as/mission"
 
     padding: 1.7
