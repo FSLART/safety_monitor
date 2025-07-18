@@ -39,7 +39,6 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     control_sub = this->create_subscription<lart_msgs::msg::DynamicsCMD>(topics[4], 10, std::bind(&SafetyMonitor::control_callback,this, _1));
     acu_dynamics_sub = this->create_subscription<lart_msgs::msg::Dynamics>(topics[5], 10, std::bind(&SafetyMonitor::acu_dynamics_callback,this, _1));
 
-
     // create the subscriber for the state controller
     state_sub = this->create_subscription<lart_msgs::msg::State>(state_topic, 10, std::bind(&SafetyMonitor::get_state,this, _1));
 
@@ -135,6 +134,10 @@ void SafetyMonitor::update_time(const std::string &topic_name){
 
 // periodically checks if every topic is sending msgs in time
 void SafetyMonitor::monitor_times(){
+    if(state_msg.data != lart_msgs::msg::State::DRIVING){
+        RCLCPP_INFO(this->get_logger(), "Safety Monitor is not active, car is not driving");
+        return; // only monitor when the car is driving
+    }
     for (auto &&pair : last_times)
     {
         auto current_time = system_clock::now();

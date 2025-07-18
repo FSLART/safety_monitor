@@ -1,7 +1,7 @@
 /SafetyMonitorNode:
   ros__parameters:
 
-  topics: ["/mapping/cones","/ekf/state","/ekf/map","/planned_path_topic","/pc_origin/dynamics", "/acu_origin/dynamics"]
+    topics: ["/mapping/cones","/ekf/state","/ekf/map","/planned_path_topic","/pc_origin/dynamics", "/acu_origin/dynamics"]
 
     freqs: [100.0,100.0,100.0,100.0,100.0,100.0]
 
