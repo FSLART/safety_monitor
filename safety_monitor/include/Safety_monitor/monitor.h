@@ -12,6 +12,7 @@
 #include "timeFreq.h"
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/vector3_stamped.hpp"
 #include "lart_msgs/msg/path_spline.hpp"
 #include "lart_msgs/msg/state.hpp"
 #include "sensor_msgs/msg/image.hpp"
@@ -42,6 +43,7 @@ private:
     rclcpp::Subscription<lart_msgs::msg::ConeArray>::SharedPtr mapping_sub;
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr ekf_state_sub;
     rclcpp::Subscription<lart_msgs::msg::ConeArray>::SharedPtr ekf_map_sub;
+    rclcpp::Subscription<geometry_msgs::msg::Vector3Stamped>::SharedPtr imu_sub;
     rclcpp::Subscription<lart_msgs::msg::PathSpline>::SharedPtr planning_sub;
     rclcpp::Subscription<lart_msgs::msg::DynamicsCMD>::SharedPtr control_sub;
     rclcpp::Subscription<lart_msgs::msg::Dynamics>::SharedPtr acu_dynamics_sub;
@@ -63,6 +65,7 @@ private:
     void mapping_callback(const lart_msgs::msg::ConeArray::SharedPtr msg);
     void ekf_state_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
     void ekf_map_callback(const lart_msgs::msg::ConeArray::SharedPtr msg);
+    void imu_callback(const geometry_msgs::msg::Vector3Stamped::SharedPtr msg);
     void planning_callback(const lart_msgs::msg::PathSpline::SharedPtr msg);
     void control_callback(const lart_msgs::msg::DynamicsCMD::SharedPtr msg);
     void acu_dynamics_callback(const lart_msgs::msg::Dynamics::SharedPtr msg);

@@ -35,9 +35,10 @@ SafetyMonitor::SafetyMonitor() : Node("safety_monitor")
     ekf_state_sub = this->create_subscription<geometry_msgs::msg::PoseStamped>(topics[1], 10, std::bind(&SafetyMonitor::ekf_state_callback,this, _1));
     ekf_map_sub = this->create_subscription<lart_msgs::msg::ConeArray>(topics[2], 10, std::bind(&SafetyMonitor::ekf_map_callback,this, _1));
 
-    planning_sub = this->create_subscription<lart_msgs::msg::PathSpline>(topics[3], 10, std::bind(&SafetyMonitor::planning_callback,this, _1));
-    control_sub = this->create_subscription<lart_msgs::msg::DynamicsCMD>(topics[4], 10, std::bind(&SafetyMonitor::control_callback,this, _1));
-    acu_dynamics_sub = this->create_subscription<lart_msgs::msg::Dynamics>(topics[5], 10, std::bind(&SafetyMonitor::acu_dynamics_callback,this, _1));
+    imu_sub = this->create_subscription<geometry_msgs::msg::Vector3Stamped>(topics[3], 10, std::bind(&SafetyMonitor::imu_callback,this, _1));
+    planning_sub = this->create_subscription<lart_msgs::msg::PathSpline>(topics[4], 10, std::bind(&SafetyMonitor::planning_callback,this, _1));
+    control_sub = this->create_subscription<lart_msgs::msg::DynamicsCMD>(topics[5], 10, std::bind(&SafetyMonitor::control_callback,this, _1));
+    acu_dynamics_sub = this->create_subscription<lart_msgs::msg::Dynamics>(topics[6], 10, std::bind(&SafetyMonitor::acu_dynamics_callback,this, _1));
 
     // create the subscriber for the state controller
     state_sub = this->create_subscription<lart_msgs::msg::State>(state_topic, 10, std::bind(&SafetyMonitor::get_state,this, _1));
@@ -72,25 +73,32 @@ void SafetyMonitor::ekf_map_callback(const lart_msgs::msg::ConeArray::SharedPtr 
     update_time(topics[2]);
 }
 
+void SafetyMonitor::imu_callback(const geometry_msgs::msg::Vector3Stamped::SharedPtr msg)
+{
+    (void) msg;
+    RCLCPP_INFO(this->get_logger(), "IMU msg has been received");
+    update_time(topics[3]);
+}
+
 void SafetyMonitor::planning_callback(const lart_msgs::msg::PathSpline::SharedPtr msg)
 {
     (void) msg;
     RCLCPP_INFO(this->get_logger(), "Planner msg has been received");
-    update_time(topics[3]);
+    update_time(topics[4]);
 }
 
 void SafetyMonitor::control_callback(const lart_msgs::msg::DynamicsCMD::SharedPtr msg)
 {
     (void) msg;
     RCLCPP_INFO(this->get_logger(), "Control msg has been received");
-    update_time(topics[4]);
+    update_time(topics[5]);
 }
 
 void SafetyMonitor::acu_dynamics_callback(const lart_msgs::msg::Dynamics::SharedPtr msg)
 {
     (void) msg;
     RCLCPP_INFO(this->get_logger(), "ACU dynamics msg has been received");
-    update_time(topics[5]);
+    update_time(topics[6]);
 }
 
 
